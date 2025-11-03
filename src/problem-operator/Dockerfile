@@ -2,7 +2,7 @@ FROM golang:1.24.5-alpine3.22@sha256:daae04ebad0c21149979cd8e9db38f565ecefd8547c
 
 WORKDIR /build
 
-COPY ["go.mod", "go.sum", "./"]
+COPY go.* ./
 
 RUN go mod download
 

@@ -4,7 +4,7 @@ RUN apk add --no-cache gcc libc-dev git
 
 WORKDIR /build
 
-COPY ["go.mod", "go.sum", "./"]
+COPY go.* ./
 
 RUN go mod tidy \
     && go mod verify
