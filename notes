@@ -1,0 +1,221 @@
+Here are several additional frontend error scenarios you can simulate for your thesis on frontend monitoring. These errors are designed to test how monitoring tools capture and report various failure cases that impact the user experience.
+
+1. HTTP Errors
+Simulate different HTTP status codes to test how the frontend handles error responses and how monitoring tools capture and report them.
+
+a. HTTP 400 - Bad Request
+Simulate an invalid request from the frontend.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("bad_request_error", false)) {
+    logger.warn("Simulating bad request error.");
+    return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new StandardResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "The request was invalid.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 400 Bad Request response.
+This simulates scenarios where the user sends invalid input or the request fails validation.
+b. HTTP 500 - Internal Server Error
+Simulate an internal server error to test how the frontend reacts to server-side failures.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("internal_server_error", false)) {
+    logger.warn("Simulating internal server error.");
+    return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new StandardResponse(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "An internal server error occurred.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 500 Internal Server Error response.
+This can help you test how the frontend displays error messages for server-side failures.
+c. HTTP 429 - Too Many Requests
+Simulate rate-limiting by returning a 429 Too Many Requests response.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("rate_limit_error", false)) {
+    logger.warn("Simulating rate-limiting error.");
+    return ResponseEntity
+            .status(HttpStatus.TOO_MANY_REQUESTS)
+            .body(new StandardResponse(
+                    HttpStatus.TOO_MANY_REQUESTS.value(),
+                    "Too many requests. Please try again later.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 429 Too Many Requests response.
+This can help test how the frontend handles rate-limiting scenarios (e.g., retry logic).
+2. JavaScript Errors
+Simulate common JavaScript errors that can occur on the frontend.
+
+a. Undefined Variable Error - done
+Simulate a scenario where the frontend tries to access an undefined variable.
+
+Implementation:
+You can’t directly simulate JavaScript errors from the backend, but you can inject a script into the response to trigger the error.
+java
+
+Copy
+if (client.getBooleanValue("undefined_variable_error", false)) {
+    logger.warn("Simulating undefined variable error.");
+    String script = "<script>console.log(nonExistentVariable);</script>";
+    return ResponseEntity
+            .status(HttpStatus.OK)
+            .contentType(MediaType.TEXT_HTML)
+            .body(script);
+}
+What Happens:
+The frontend executes the script, which references an undefined variable, causing a ReferenceError in the browser console.
+b. Type Error
+Simulate a scenario where the frontend tries to call a method on undefined.
+
+Implementation:
+Inject a script that triggers a TypeError:
+
+java
+
+Copy
+if (client.getBooleanValue("type_error", false)) {
+    logger.warn("Simulating type error.");
+    String script = "<script>let obj = undefined; obj.someMethod();</script>";
+    return ResponseEntity
+            .status(HttpStatus.OK)
+            .contentType(MediaType.TEXT_HTML)
+            .body(script);
+}
+
+What Happens:
+The frontend executes the script, which tries to call a method on undefined, causing a TypeError.
+3. User Interaction Errors
+Simulate errors caused by user actions or improper input handling.
+
+a. Form Validation Error
+Simulate a scenario where the user submits invalid data in a form.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("form_validation_error", false)) {
+    logger.warn("Simulating form validation error.");
+    return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new StandardResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Invalid input data.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 400 Bad Request response and should display an appropriate error message.
+
+b. File Upload Error
+Simulate an error during file upload (e.g., unsupported file type or size limit exceeded).
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("file_upload_error", false)) {
+    logger.warn("Simulating file upload error.");
+    return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new StandardResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "File size exceeds the allowed limit.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 400 Bad Request response when attempting to upload a file.
+This can help test how the frontend handles file upload errors.
+
+4. Session-Related Errors
+Simulate issues related to user sessions.
+
+a. Expired Session
+Simulate a scenario where the user’s session has expired.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("session_expired", false)) {
+    logger.warn("Simulating expired session.");
+    return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(new StandardResponse(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    "Session expired. Please log in again.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 401 Unauthorized response, indicating the session has expired.
+The frontend should redirect the user to the login page.
+b. CSRF Token Error
+Simulate a Cross-Site Request Forgery (CSRF) token validation failure.
+
+Implementation:
+java
+
+Copy
+if (client.getBooleanValue("csrf_error", false)) {
+    logger.warn("Simulating CSRF token error.");
+    return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(new StandardResponse(
+                    HttpStatus.FORBIDDEN.value(),
+                    "Invalid CSRF token.",
+                    null, null, null));
+}
+What Happens:
+The frontend receives a 403 Forbidden response, indicating an invalid CSRF token.
+This can help test how the frontend handles CSRF-related errors.
+5. Monitoring Frontend Errors
+Once you’ve implemented these errors, you can use frontend monitoring tools to capture and analyze them.
+
+Key Metrics to Monitor:
+Error Rates:
+
+Track the frequency of JavaScript errors (e.g., SyntaxError, TypeError).
+Monitor HTTP error rates (e.g., 4xx, 5xx).
+User Behavior:
+
+Analyze how errors impact user behavior:
+Session duration
+Bounce rates
+User flow drop-offs
+Performance Metrics:
+
+Measure the impact of slow responses or large payloads on Core Web Vitals like:
+Largest Contentful Paint (LCP)
+First Input Delay (FID)
+Cumulative Layout Shift (CLS)
+6. Recommendations for Your Thesis
+Include Real-World Scenarios:
+
+Focus on errors that are common in production environments (e.g., malformed JSON, slow responses, or unauthorized access).
+Use feature flags to control when these errors are triggered.
+Analyze Monitoring Tools:
+
+Compare how tools like Dynatrace, Datadog, and New Relic:
+Detect and report frontend errors.
+Correlate frontend issues with backend problems.
+Provide actionable insights for developers.
+Document Performance Impact:
+
+Measure how these errors impact frontend performance and user experience.
+Use screenshots and reports from monitoring tools to support your findings.
