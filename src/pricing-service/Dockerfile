@@ -11,7 +11,8 @@ RUN go mod tidy \
 
 COPY [".", "."]
 
-RUN go test ./... \
+RUN go mod download \
+    && go test ./... \
     && go install github.com/swaggo/swag/cmd/swag@v1.16.3 \
     && swag init \
     && go build -ldflags '-linkmode=external' -o pricing-service

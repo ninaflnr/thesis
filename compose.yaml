@@ -36,7 +36,9 @@ services:
 
   manager:
     <<: *default-service
-    image: ${REGISTRY}/manager:${TAG}
+    build:
+      context: ./src/manager/easyTradeManager
+      dockerfile: Dockerfile
     environment:
       MSSQL_CONNECTIONSTRING: *dotnet-connection-string
       PROXY_PREFIX: manager
