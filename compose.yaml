@@ -19,11 +19,7 @@ x-connection-strings:
   GO_CONNECTION_STRING: &go-connection-string ${MYSQLUSER}:${MYSQLPASSWORD}@tcp(${MYSQLHOST}:${MYSQLPORT})/${MYSQLDATABASE}
 
 x-rabbit-vars: &rabbit-vars
-  RABBITMQ_USER: userxxx
-  RABBITMQ_PASSWORD: passxxx
-  RABBITMQ_PORT: "5672"
-  RABBITMQ_HOST: rabbitmq
-  RABBITMQ_QUEUE: Trade_Data_Raw
+  RABBITMQ_URL: ${RABBITMQ_URL}
 
 services:
   contentcreator:
@@ -42,8 +38,6 @@ services:
   pricing-service:
     <<: *default-service
     image: ${REGISTRY}/pricing-service:${TAG}
-    depends_on:
-      - rabbitmq
     environment:
       MSSQL_CONNECTIONSTRING: *go-connection-string
       PROXY_PREFIX: pricing-service
@@ -52,7 +46,7 @@ services:
   broker-service:
     <<: *default-service
     build:
-      context: ./broker-service
+      context: ./src/broker-service
       dockerfile: Dockerfile
     depends_on:
       - accountservice
@@ -68,22 +62,16 @@ services:
       ENABLE_DELAY_SIMULATION: "true"
       DELAY_SIMULATION_REQUEST_DELAY_MS: "4000"
 
-  rabbitmq:
-    <<: *default-service
-    image: ${REGISTRY}/rabbitmq:${TAG}
-
   calculationservice:
     <<: *default-service
     image: ${REGISTRY}/calculationservice:${TAG}
-    depends_on:
-      - rabbitmq
     environment:
       <<: *rabbit-vars
 
   frontend:
     <<: *default-service
     build:
-      context: ./frontend
+      context: ./src/frontend
       dockerfile: Dockerfile
     depends_on:
       - broker-service
@@ -140,7 +128,7 @@ services:
   feature-flag-service:
     <<: *default-service
     build:
-      context: ./feature-flag-service
+      context: ./src/feature-flag-service
       dockerfile: Dockerfile
     environment:
       PROXY_PREFIX: feature-flag-service
@@ -179,7 +167,7 @@ services:
   credit-card-order-service:
     <<: *default-service
     build:
-      context: ./credit-card-order-service
+      context: ./src/credit-card-order-service
       dockerfile: Dockerfile
     depends_on:
       - third-party-service
@@ -195,7 +183,7 @@ services:
   third-party-service:
     <<: *default-service
     build:
-      context: ./third-party-service
+      context: ./src/third-party-service
       dockerfile: Dockerfile
     environment:
       <<: *feature-flag-service-env
