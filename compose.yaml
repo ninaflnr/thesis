@@ -56,7 +56,7 @@ services:
   broker-service:
     <<: *default-service
     build:
-      context: ./broker-service
+      context: ./src/broker-service
       dockerfile: Dockerfile
     depends_on:
       - accountservice
@@ -87,7 +87,7 @@ services:
   frontend:
     <<: *default-service
     build:
-      context: ./frontend
+      context: ./src/frontend
       dockerfile: Dockerfile
     depends_on:
       - broker-service
@@ -144,7 +144,7 @@ services:
   feature-flag-service:
     <<: *default-service
     build:
-      context: ./feature-flag-service
+      context: ./src/feature-flag-service
       dockerfile: Dockerfile
     environment:
       PROXY_PREFIX: feature-flag-service
@@ -183,7 +183,7 @@ services:
   credit-card-order-service:
     <<: *default-service
     build:
-      context: ./credit-card-order-service
+      context: ./src/credit-card-order-service
       dockerfile: Dockerfile
     depends_on:
       - third-party-service
