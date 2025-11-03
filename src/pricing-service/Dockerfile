@@ -4,14 +4,10 @@ RUN apk add --no-cache gcc libc-dev git
 
 WORKDIR /build
 
-COPY go.* ./
-
-RUN go mod tidy \
-    && go mod verify
-
 COPY [".", "."]
 
-RUN go mod download \
+RUN go mod tidy \
+    && go mod download \
     && go test ./... \
     && go install github.com/swaggo/swag/cmd/swag@v1.16.3 \
     && swag init \
