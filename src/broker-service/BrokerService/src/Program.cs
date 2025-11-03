@@ -8,6 +8,7 @@ using EasyTrade.BrokerService.ProblemPatterns.DelaySimulation;
 using EasyTrade.BrokerService.ProblemPatterns.TimeoutError;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +31,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Connect to database
+var connectionString = builder.Configuration[Constants.MsSqlConnectionString];
+var serverVersion = ServerVersion.AutoDetect(connectionString);
 builder.Services.AddDbContext<BrokerDbContext>(options =>
-    options.UseSqlServer(builder.Configuration[Constants.MsSqlConnectionString])
+    options.UseMySql(connectionString, serverVersion)
 );
+
 
 // Clear default logging providers and and new ones
 builder.Logging.ClearProviders();

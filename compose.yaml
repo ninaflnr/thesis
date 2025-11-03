@@ -14,9 +14,9 @@ x-feature-flag-service: &feature-flag-service-env
   FEATURE_FLAG_SERVICE_PORT: 8080
 
 x-connection-strings:
-  JAVA_CONNECTION_STRING: &java-connection-string jdbc:sqlserver://db:1433;database=TradeManagement;user=sa;password=yourStrong(!)Password;encrypt=false;trustServerCertificate=false;loginTimeout=30;
-  DOTNET_CONNECTION_STRING: &dotnet-connection-string Data Source=db;Initial Catalog=TradeManagement;Persist Security Info=True;User ID=sa;Password=yourStrong(!)Password;TrustServerCertificate=true
-  GO_CONNECTION_STRING: &go-connection-string sqlserver://sa:yourStrong(!)Password@db:1433?database=TradeManagement&connection+encrypt=false&connection+TrustServerCertificate=false&connection+loginTimeout=30
+  JAVA_CONNECTION_STRING: &java-connection-string jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?user=${MYSQLUSER}&password=${MYSQLPASSWORD}
+  DOTNET_CONNECTION_STRING: &dotnet-connection-string Server=${MYSQLHOST};Port=${MYSQLPORT};Database=${MYSQLDATABASE};Uid=${MYSQLUSER};Pwd=${MYSQLPASSWORD};
+  GO_CONNECTION_STRING: &go-connection-string ${MYSQLUSER}:${MYSQLPASSWORD}@tcp(${MYSQLHOST}:${MYSQLPORT})/${MYSQLDATABASE}
 
 x-rabbit-vars: &rabbit-vars
   RABBITMQ_USER: userxxx
@@ -26,25 +26,17 @@ x-rabbit-vars: &rabbit-vars
   RABBITMQ_QUEUE: Trade_Data_Raw
 
 services:
-  db:
-    <<: *default-service
-    image: ${REGISTRY}/db:${TAG}
-    environment:
-      SA_PASSWORD: yourStrong(!)Password
-
   contentcreator:
     <<: *default-service
-    image: ${REGISTRY}/contentcreator:${TAG}
-    depends_on:
-      - db
+    build:
+      context: ./src/contentcreator
+      dockerfile: Dockerfile
     environment:
       MSSQL_CONNECTIONSTRING: *java-connection-string
 
   manager:
     <<: *default-service
     image: ${REGISTRY}/manager:${TAG}
-    depends_on:
-      - db
     environment:
       MSSQL_CONNECTIONSTRING: *dotnet-connection-string
       PROXY_PREFIX: manager
@@ -53,7 +45,6 @@ services:
     <<: *default-service
     image: ${REGISTRY}/pricing-service:${TAG}
     depends_on:
-      - db
       - rabbitmq
     environment:
       MSSQL_CONNECTIONSTRING: *go-connection-string
@@ -66,7 +57,6 @@ services:
       context: ./broker-service
       dockerfile: Dockerfile
     depends_on:
-      - db
       - accountservice
       - pricing-service
       - feature-flag-service
@@ -107,8 +97,6 @@ services:
   loginservice:
     <<: *default-service
     image: ${REGISTRY}/loginservice:${TAG}
-    depends_on:
-      - db
     environment:
       MSSQL_CONNECTIONSTRING: *dotnet-connection-string
       PROXY_PREFIX: loginservice
@@ -196,7 +184,6 @@ services:
       context: ./credit-card-order-service
       dockerfile: Dockerfile
     depends_on:
-      - db
       - third-party-service
     environment:
       PROXY_PREFIX: credit-card-order-service

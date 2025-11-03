@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 using easyTradeManager.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace easyTradeManager
 {
@@ -31,9 +32,10 @@ namespace easyTradeManager
         {
             var connectionString = Configuration["MSSQL_CONNECTIONSTRING"];
 
-            services.AddDbContext<AccountsDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddDbContext<PackagesDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddDbContext<ProductsDbContext>(options => options.UseSqlServer(connectionString));
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+            services.AddDbContext<AccountsDbContext>(options => options.UseMySql(connectionString, serverVersion));
+            services.AddDbContext<PackagesDbContext>(options => options.UseMySql(connectionString, serverVersion));
+            services.AddDbContext<ProductsDbContext>(options => options.UseMySql(connectionString, serverVersion));
 
             services.AddControllers().AddJsonOptions(o =>
             {

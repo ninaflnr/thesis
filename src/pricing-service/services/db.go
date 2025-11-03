@@ -5,11 +5,12 @@ import (
 	"os"
 	"time"
 
-	"gorm.io/driver/sqlserver"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	log "github.com/sirupsen/logrus"
 )
+
 
 var DB *gorm.DB
 
@@ -23,7 +24,7 @@ func connectLoop(credentials string, timeout time.Duration) (*gorm.DB, error) {
 		case <-timeoutExceeded:
 			return nil, fmt.Errorf("Error connecting to the database after %s timeout", timeout)
 		case <-ticker.C:
-			db, err := gorm.Open(sqlserver.Open(credentials), &gorm.Config{})
+            db, err := gorm.Open(mysql.Open(credentials), &gorm.Config{})
 
 			if err == nil {
 				return db, nil

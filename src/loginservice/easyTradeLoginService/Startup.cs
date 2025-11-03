@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 using easyTradeLoginService.Models;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,8 @@ namespace easyTradeLoginService
         {
             var connectionString = Configuration["MSSQL_CONNECTIONSTRING"];
 
-            services.AddDbContext<AccountsDbContext>(options => options.UseSqlServer(connectionString));
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+            services.AddDbContext<AccountsDbContext>(options => options.UseMySql(connectionString, serverVersion));
 
             services.AddControllers().AddJsonOptions(o =>
             {
