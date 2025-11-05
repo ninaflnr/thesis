@@ -5,7 +5,6 @@ import com.dynatrace.easytrade.contentcreator.SQLQueryProvider.Queries;
 import com.dynatrace.easytrade.contentcreator.models.Instruments;
 import com.dynatrace.easytrade.contentcreator.models.Pricing;
 import com.dynatrace.easytrade.contentcreator.models.SQLTables;
-import com.microsoft.sqlserver.jdbc.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class ContentCreator {
             LOGGER.error("The environment variable MSSQL_CONNECTIONSTRING has not been set!");
             System.exit(1);
         }
-        if (StringUtils.isEmpty(mssqlPath) == true) {
+        if (mssqlPath.isEmpty()) {
             LOGGER.error("The environment variable MSSQL_CONNECTIONSTRING is empty!");
             System.exit(2);
         }
