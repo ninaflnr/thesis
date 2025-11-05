@@ -25,5 +25,5 @@ RUN npm install --omit=dev \
 COPY --from=builder ["/usr/src/app/build", "./build"]
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "node", "./build/src/main.js" ]
+CMD [ "node", "./build/main.js" ]
 
