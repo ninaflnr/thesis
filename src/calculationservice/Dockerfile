@@ -1,5 +1,7 @@
 FROM gcc:14.2.0@sha256:561e2a4b76c441215d26625fbf2d5e345da60ef22b7d46e6ab45d1d53d95c43e AS build
 
+
+
 ARG C_FLAGS="-lonesdk_static -lamqpcpp -lpthread -levent -levent_core -Wl,--no-as-needed -ldl"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG ONEAGENT_SDK_VERSION="1.7.1"
