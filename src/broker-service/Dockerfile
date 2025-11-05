@@ -2,10 +2,21 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0.412-alpine3.22@sha256:ad6ab1a677854e5b681bc69f4fdb4ad9913e3798c4f89927254b6a53215d5b7d AS build
 
 WORKDIR /BrokerService
+
+# Copy csproj files first for better layer caching
+COPY ["BrokerService/src/BrokerService.csproj", "src/"]
+COPY ["BrokerService/test/BrokerService.test.csproj", "test/"]
+
+# Restore dependencies
+RUN dotnet restore src/BrokerService.csproj \
+    && dotnet restore test/BrokerService.test.csproj
+
+# Copy everything else
 COPY ["BrokerService/", "./"]
 
+# Build, test, and publish
 RUN dotnet test test/BrokerService.test.csproj \
-    && dotnet publish src/BrokerService.csproj -o /publish
+    && dotnet publish src/BrokerService.csproj -c Release -o /publish
 
 # https://mcr.microsoft.com/v2/dotnet/aspnet/tags/list
 FROM mcr.microsoft.com/dotnet/aspnet:8.0.18-alpine3.22@sha256:a6695199ce879ae4bcfc92f3dfd55b7db5e46e3bdc128a690c6594444f0e300a AS runtime
