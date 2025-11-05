@@ -43,9 +43,12 @@ RUN cd AMQP-CPP && \
     cd .. && \
     rm -rf AMQP-CPP
 
+COPY --from=build ["/src/consumeCandleData", "."]
+COPY ["entrypoint.sh", "."]
+
+RUN chmod +x entrypoint.sh consumeCandleData
+
 USER easytrade
 
-COPY --from=build --chown=easytrade:easytrade ["/src/consumeCandleData", "."]
-COPY --chown=easytrade:easytrade ["entrypoint.sh", "."]
 
 CMD ["./entrypoint.sh"]
