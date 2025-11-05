@@ -30,35 +30,46 @@ namespace easyTradeManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Get connection string from configuration or build it from environment variables
-            var connectionString = Configuration["MSSQL_CONNECTIONSTRING"];
+            // Get individual MySQL environment variables
+            var host = Environment.GetEnvironmentVariable("MYSQL_HOST")
+                ?? Environment.GetEnvironmentVariable("MYSQLHOST")
+                ?? Configuration["MYSQL_HOST"]
+                ?? Configuration["MYSQLHOST"]
+                ?? "localhost";
 
-            // If connection string contains placeholders like ${MYSQLPORT}, substitute them
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                connectionString = connectionString
-                    .Replace("${MYSQL_HOST}", Environment.GetEnvironmentVariable("MYSQL_HOST") ?? Configuration["MYSQL_HOST"] ?? "localhost")
-                    .Replace("${MYSQLHOST}", Environment.GetEnvironmentVariable("MYSQLHOST") ?? Configuration["MYSQLHOST"] ?? "localhost")
-                    .Replace("${MYSQL_PORT}", Environment.GetEnvironmentVariable("MYSQL_PORT") ?? Configuration["MYSQL_PORT"] ?? "3306")
-                    .Replace("${MYSQLPORT}", Environment.GetEnvironmentVariable("MYSQLPORT") ?? Configuration["MYSQLPORT"] ?? "3306")
-                    .Replace("${MYSQL_DATABASE}", Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? Configuration["MYSQL_DATABASE"] ?? "easyTradeDB")
-                    .Replace("${MYSQLDATABASE}", Environment.GetEnvironmentVariable("MYSQLDATABASE") ?? Configuration["MYSQLDATABASE"] ?? "easyTradeDB")
-                    .Replace("${MYSQL_USER}", Environment.GetEnvironmentVariable("MYSQL_USER") ?? Configuration["MYSQL_USER"] ?? "root")
-                    .Replace("${MYSQLUSER}", Environment.GetEnvironmentVariable("MYSQLUSER") ?? Configuration["MYSQLUSER"] ?? "root")
-                    .Replace("${MYSQL_PASSWORD}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? Configuration["MYSQL_PASSWORD"] ?? "")
-                    .Replace("${MYSQLPASSWORD}", Environment.GetEnvironmentVariable("MYSQLPASSWORD") ?? Configuration["MYSQLPASSWORD"] ?? "");
-            }
-            else
-            {
-                // Build connection string from individual environment variables if MSSQL_CONNECTIONSTRING is not set
-                var host = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? Environment.GetEnvironmentVariable("MYSQLHOST") ?? Configuration["MYSQL_HOST"] ?? "localhost";
-                var port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? Environment.GetEnvironmentVariable("MYSQLPORT") ?? Configuration["MYSQL_PORT"] ?? "3306";
-                var database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? Environment.GetEnvironmentVariable("MYSQLDATABASE") ?? Configuration["MYSQL_DATABASE"] ?? "easyTradeDB";
-                var user = Environment.GetEnvironmentVariable("MYSQL_USER") ?? Environment.GetEnvironmentVariable("MYSQLUSER") ?? Configuration["MYSQL_USER"] ?? "root";
-                var password = Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? Environment.GetEnvironmentVariable("MYSQLPASSWORD") ?? Configuration["MYSQL_PASSWORD"] ?? "";
+            var port = Environment.GetEnvironmentVariable("MYSQL_PORT")
+                ?? Environment.GetEnvironmentVariable("MYSQLPORT")
+                ?? Configuration["MYSQL_PORT"]
+                ?? Configuration["MYSQLPORT"]
+                ?? "3306";
 
-                connectionString = $"Server={host};Port={port};Database={database};Uid={user};Pwd={password};";
-            }
+            var database = Environment.GetEnvironmentVariable("MYSQL_DATABASE")
+                ?? Environment.GetEnvironmentVariable("MYSQLDATABASE")
+                ?? Configuration["MYSQL_DATABASE"]
+                ?? Configuration["MYSQLDATABASE"]
+                ?? "easyTradeDB";
+
+            var user = Environment.GetEnvironmentVariable("MYSQL_USER")
+                ?? Environment.GetEnvironmentVariable("MYSQLUSER")
+                ?? Configuration["MYSQL_USER"]
+                ?? Configuration["MYSQLUSER"]
+                ?? "root";
+
+            var password = Environment.GetEnvironmentVariable("MYSQL_PASSWORD")
+                ?? Environment.GetEnvironmentVariable("MYSQLPASSWORD")
+                ?? Configuration["MYSQL_PASSWORD"]
+                ?? Configuration["MYSQLPASSWORD"]
+                ?? "";
+
+            // Build connection string from individual MySQL environment variables
+            // This is more reliable than using MSSQL_CONNECTIONSTRING which may contain unresolved placeholders
+            var connectionString = $"Server={host};Port={port};Database={database};Uid={user};Pwd={password};";
+
+            Console.WriteLine($"[Manager] Built connection string from environment variables:");
+            Console.WriteLine($"[Manager]   Server={host}");
+            Console.WriteLine($"[Manager]   Port={port}");
+            Console.WriteLine($"[Manager]   Database={database}");
+            Console.WriteLine($"[Manager]   User={user}");
 
             var serverVersion = ServerVersion.AutoDetect(connectionString);
             services.AddDbContext<AccountsDbContext>(options => options.UseMySql(connectionString, serverVersion));
