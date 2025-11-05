@@ -1,7 +1,5 @@
 FROM gcc:14.2.0@sha256:561e2a4b76c441215d26625fbf2d5e345da60ef22b7d46e6ab45d1d53d95c43e AS build
 
-
-
 ARG C_FLAGS="-lonesdk_static -lamqpcpp -lpthread -levent -levent_core -Wl,--no-as-needed -ldl"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG ONEAGENT_SDK_VERSION="1.7.1"
@@ -27,7 +25,7 @@ RUN wget ${ONEAGENT_SDK_URL} -O oneagentsdk.tar.gz \
     && tar -zxvf oneagentsdk.tar.gz \
     && g++ -std=c++17 -o consumeCandleData consume.cpp -I ./${ONEAGENT_SDK_DIR}/include -L ./${ONEAGENT_SDK_DIR}/lib/linux-x86_64 ${C_FLAGS}
 
-FROM ubuntu:22.04@sha256:19478ce7fc2ffbce89df29fea5725a8d12e57de52eb9ea570890dc5852aac1ac
+FROM ubuntu:24.04@sha256:eea047b4b181f2d3aeafbc0ce5294a2bbb3b98153a68b9ed4bc573d871ca9450
 
 RUN apt-get update \
     && apt-get install -y \
@@ -38,12 +36,9 @@ RUN apt-get update \
 
 WORKDIR /home/easytrade
 
-COPY --from=build /src/AMQP-CPP ./AMQP-CPP
-
-RUN cd AMQP-CPP && \
-    make install && \
-    cd .. && \
-    rm -rf AMQP-CPP
+RUN --mount=type=bind,from=build,source=/src/AMQP-CPP,target=./AMQP-CPP \
+    cd AMQP-CPP && \
+    make install
 
 USER easytrade
 
