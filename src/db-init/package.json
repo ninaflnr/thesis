@@ -1,0 +1,13 @@
+{
+  "name": "easytrade-db-init",
+  "version": "1.0.0",
+  "description": "One-time database initialization for EasyTrade on Railway",
+  "main": "init-db.js",
+  "scripts": {
+    "start": "node init-db.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.0"
+  }
+}
+
