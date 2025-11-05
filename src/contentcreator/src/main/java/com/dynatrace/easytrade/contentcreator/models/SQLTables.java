@@ -7,13 +7,13 @@ import com.dynatrace.easytrade.contentcreator.SQLQueryProvider.Conditions;
 import java.util.NoSuchElementException;
 
 public enum SQLTables {
-    ACCOUNTS("[dbo].[Accounts]"),
-    BALANCE_HISTORY("[dbo].[Balancehistory]", "[ActionDate]"),
-    INSTRUMENTS("[dbo].[Instruments]"),
-    OWNED_INSTRUMENTS("[dbo].[Ownedinstruments]"),
-    PRICING("[dbo].[Pricing]", "[Timestamp]", "([Timestamp], [InstrumentId], [Open], [High], [Low], [Close])",
+    ACCOUNTS("Accounts"),
+    BALANCE_HISTORY("Balancehistory", "ActionDate"),
+    INSTRUMENTS("Instruments"),
+    OWNED_INSTRUMENTS("Ownedinstruments"),
+    PRICING("Pricing", "Timestamp", "(Timestamp, InstrumentId, Open, High, Low, Close)",
             "(?, ?, ?, ?, ?, ?)"),
-    TRADES("[dbo].[Trades]", "[TimestampOpen]");
+    TRADES("Trades", "TimestampOpen");
 
     private final String name;
     private final Optional<String> dateField;
@@ -63,7 +63,7 @@ public enum SQLTables {
      * @return String representing SQL query
      */
     public String getCountCheckQuery() {
-        return "SELECT COUNT(Id) AS [COUNT] FROM " + name;
+        return "SELECT COUNT(Id) AS COUNT FROM " + name;
     }
 
     /**
@@ -75,7 +75,7 @@ public enum SQLTables {
      * @return String representing SQL query
      */
     public String getCountCheckQuery(String conditionString) {
-        return "SELECT COUNT(Id) AS [COUNT] FROM " + name + " " + conditionString;
+        return "SELECT COUNT(Id) AS COUNT FROM " + name + " " + conditionString;
     }
 
     /**
