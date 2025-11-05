@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 
 public class SQLDatabaseConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLDatabaseConnector.class);
-    private final String CONNECTION_OK_SQL = "SELECT TOP 10 Id FROM Accounts";
+    private final String CONNECTION_OK_SQL = "SELECT Id FROM Accounts LIMIT 10";
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final String connectionUrl;

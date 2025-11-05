@@ -86,9 +86,9 @@ public enum SQLTables {
      */
     public String getDeleteTopQuery() {
         if (dateField.isEmpty()) {
-            return "DELETE TOP (?) FROM " + name;
+            return "DELETE FROM " + name + " LIMIT ?";
         }
-        return "WITH T AS (SELECT TOP (?) * FROM " + name + " ORDER BY " + dateField.get() + ") DELETE FROM T";
+        return "DELETE FROM " + name + " ORDER BY " + dateField.get() + " LIMIT ?";
     }
 
     /**
@@ -101,10 +101,10 @@ public enum SQLTables {
      */
     public String getDeleteTopQuery(String conditionString) {
         if (dateField.isEmpty()) {
-            return "DELETE TOP (?) FROM " + name;
+            return "DELETE FROM " + name + " " + conditionString + " LIMIT ?";
         }
-        return "WITH T AS (SELECT TOP (?) * FROM " + name + " " + conditionString + " ORDER BY " + dateField.get()
-                + ") DELETE FROM T";
+        return "DELETE FROM " + name + " " + conditionString + " ORDER BY " + dateField.get()
+                + " LIMIT ?";
     }
 
     public String getDeleteQuery() {

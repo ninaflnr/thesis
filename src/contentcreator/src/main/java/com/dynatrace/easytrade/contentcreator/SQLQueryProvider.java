@@ -9,8 +9,8 @@ public class SQLQueryProvider {
         }
 
         public static String selectTopOldestAccounts(Integer count, String conditionString) {
-            return "SELECT TOP(" + count + ") * FROM " + SQLTables.ACCOUNTS.getName()
-                    + " " + conditionString + " ORDER BY CreationDate DESC";
+            return "SELECT * FROM " + SQLTables.ACCOUNTS.getName()
+                    + " " + conditionString + " ORDER BY CreationDate DESC LIMIT " + count;
         }
 
         public static String selectTopOldestAccounts(Integer count) {
@@ -18,11 +18,16 @@ public class SQLQueryProvider {
         }
 
         public static String updateAccountStatus(String selectQuery, boolean status) {
-            return "WITH T AS (" + selectQuery + ") UPDATE T SET AccountActive=" + (status ? 1 : 0);
+            // MySQL doesn't support CTEs in UPDATE the same way as SQL Server
+            // Extract the table name and conditions from the select query
+            return "UPDATE " + SQLTables.ACCOUNTS.getName() + " SET AccountActive=" + (status ? 1 : 0)
+                    + " WHERE Id IN (" + selectQuery.replace("SELECT * FROM", "SELECT Id FROM") + ")";
         }
 
         public static String deleteSelected(String selectQuery) {
-            return "WITH T AS (" + selectQuery + ") DELETE FROM T";
+            // MySQL doesn't support CTEs in DELETE the same way as SQL Server
+            return "DELETE FROM " + SQLTables.ACCOUNTS.getName()
+                    + " WHERE Id IN (" + selectQuery.replace("SELECT * FROM", "SELECT Id FROM") + ")";
         }
     }
 
