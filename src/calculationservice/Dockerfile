@@ -36,9 +36,12 @@ RUN apt-get update \
 
 WORKDIR /home/easytrade
 
-RUN --mount=type=bind,from=build,source=/src/AMQP-CPP,target=./AMQP-CPP \
-    cd AMQP-CPP && \
-    make install
+COPY --from=build /src/AMQP-CPP ./AMQP-CPP
+
+RUN cd AMQP-CPP && \
+    make install && \
+    cd .. && \
+    rm -rf AMQP-CPP
 
 USER easytrade
 
