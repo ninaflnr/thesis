@@ -2,9 +2,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /usr/src/app
 
-COPY ["package.json", "package-lock.json", "./"]
+COPY ["package.json", "./"]
 
-RUN npm ci
+RUN npm install
 
 COPY ["tsconfig.json", "./"]
 COPY ["src", "./src"]
@@ -15,18 +15,15 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-RUN apk add --no-cache dumb-init \
-    && addgroup -g 3369 -S easytrade \
-    && adduser -u 3369 -S easytrade -G easytrade
+RUN apk add --no-cache dumb-init
 
-USER easytrade
+COPY ["package.json", "./"]
 
-COPY --chown=easytrade:easytrade ["package.json", "package-lock.json", "./"]
-
-RUN npm ci --omit=dev \
+RUN npm install --omit=dev \
     && npm cache clean --force
 
-COPY --from=builder --chown=easytrade:easytrade ["/usr/src/app/build", "./build"]
+COPY --from=builder ["/usr/src/app/build", "./build"]
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "node", "./build/src/main.js" ]
+

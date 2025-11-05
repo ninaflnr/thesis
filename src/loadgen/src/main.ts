@@ -1,66 +1,55 @@
-import {
-    createLoadgen,
-    createLoggerOptions,
-    createBrowserContextPool,
-    createBrowserOptions,
-} from "@demoability/loadgen-core"
-import { getConfig } from "./config"
-import { getProvider } from "./provider"
-import { Page } from "puppeteer"
-import {
-    StatsAggregator,
-    StatsRunner,
-} from "@demoability/loadgen-core/lib/stats"
-import { TIME_UNITS } from "@demoability/loadgen-core/lib/time"
+// Stub implementation for Railway deployment
+// Lightweight version without browser automation dependencies
+
+import winston from 'winston';
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple()
+            )
+        })
+    ]
+});
 
 async function main() {
-    const config = getConfig()
+    logger.info('='.repeat(60));
+    logger.info('EasyTrade Load Generator - Stub Mode');
+    logger.info('='.repeat(60));
+    logger.info('Running lightweight stub version');
+    logger.info('Full load generation disabled for Railway deployment');
 
-    const provider = getProvider(config)
-    const headless = config.headlessMode === "headless"
+    const easytradeUrl = process.env.EASYTRADE_URL || 'http://localhost';
+    logger.info(`Target URL: ${easytradeUrl}`);
 
-    const browserPool = createBrowserContextPool({
-        name: "main",
-        browserOptions: createBrowserOptions({ headless, product: "chrome" }),
-        loggerOptions: createLoggerOptions("browser", {
-            logLevel: config.logLevel,
-        }),
-        browserTimeToLiveMs: config.browserTimeToLiveMinutes * 60_000,
-        concurrentBrowsers: config.concurrent_browsers,
-    })
+    logger.info('Service started successfully');
+    logger.info('Keeping process alive...');
 
-    const statAggregator = new StatsAggregator(Date.now())
-    const statRunner = new StatsRunner(
-        { unit: TIME_UNITS.MINUTE, quantity: 5 },
-        { unit: TIME_UNITS.HOUR, quantity: 24 },
-        statAggregator,
-        TIME_UNITS.MINUTE,
-        [
-            { unit: TIME_UNITS.MINUTE, quantity: 5 },
-            { unit: TIME_UNITS.HOUR, quantity: 1 },
-        ],
-        createLoggerOptions("stats")
-    )
+    // Keep process running
+    setInterval(() => {
+        logger.debug('Loadgen stub heartbeat');
+    }, 60000);
 
-    const loadgen = createLoadgen({
-        visitProvider: provider,
-        loggerOptions: createLoggerOptions("visit", {
-            logLevel: config.logLevel,
-        }),
-        contextPool: browserPool,
-        concurrency: config.concurrent_visits,
-        initialPageSetup: async (page: Page) => {
-            await page.setViewport({ width: 1920, height: 1080 })
-        },
-        pageActionsConfig: {
-            longDelayMs: 3000,
-            shortDelayMs: 500,
-            standDelayMs: 1500,
-        },
-        statsRunner: statRunner,
-    })
+    // Graceful shutdown handlers
+    process.on('SIGTERM', () => {
+        logger.info('Received SIGTERM - shutting down gracefully');
+        process.exit(0);
+    });
 
-    await loadgen.run()
+    process.on('SIGINT', () => {
+        logger.info('Received SIGINT - shutting down gracefully');
+        process.exit(0);
+    });
 }
 
-main()
+main().catch((error) => {
+    logger.error('Fatal error:', error);
+    process.exit(1);
+});
