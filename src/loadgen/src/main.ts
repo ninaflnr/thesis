@@ -7,28 +7,22 @@ const logger = winston.createLogger({
     level: 'info',
     format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json()
-    ),
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            )
+        winston.format.printf(({ timestamp, level, message }) => {
+            return `${timestamp} [${level.toUpperCase()}]: ${message}`;
         })
-    ]
+    ),
+    transports: [new winston.transports.Console()]
 });
 
 async function main() {
+    const easytradeUrl = process.env.EASYTRADE_URL || 'http://localhost';
+
     logger.info('='.repeat(60));
     logger.info('EasyTrade Load Generator - Stub Mode');
     logger.info('='.repeat(60));
     logger.info('Running lightweight stub version');
     logger.info('Full load generation disabled for Railway deployment');
-
-    const easytradeUrl = process.env.EASYTRADE_URL || 'http://localhost';
     logger.info(`Target URL: ${easytradeUrl}`);
-
     logger.info('Service started successfully');
     logger.info('Keeping process alive...');
 
@@ -53,3 +47,4 @@ main().catch((error) => {
     logger.error('Fatal error:', error);
     process.exit(1);
 });
+
